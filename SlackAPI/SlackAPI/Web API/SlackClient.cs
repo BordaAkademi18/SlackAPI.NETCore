@@ -50,10 +50,10 @@ namespace SlackAPI
             switch (requestType)
             {
                 case Method.GET:
-                    request.AddHeader("Authorization", String.Format("Bearer {0}", _OauthToken.ToLower()));
+                    request.AddHeader("Authorization", String.Format("Bearer {0}", _OauthToken));
                     break;
                 case Method.POST:
-                    request.AddHeader("Authorization", String.Format("Bearer {0}", _OauthToken.ToLower()));
+                    request.AddHeader("Authorization", String.Format("Bearer {0}", _OauthToken));
                     break;
                 case Method.PUT:
                     break;
@@ -229,8 +229,8 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("cursor", cursor);
-            dict.Add("exclude_achieved", exclude_achieved.ToString());
-            dict.Add("limit", limit.ToString());
+            dict.Add("exclude_achieved", exclude_achieved.ToString().ToLower());
+            dict.Add("limit", limit.ToString().ToLower());
             dict.Add("types", types);
             var request = QuerryBuilder(dict, "conversations.list", Method.GET);
             var response = restClient.Execute(request);
@@ -280,7 +280,7 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("name", name);
-            dict.Add("is_private", is_private.ToString());
+            dict.Add("is_private", is_private.ToString().ToLower());
             dict.Add("user_ids", user_ids);
             var request = QuerryBuilder(dict, "conversations.create", Method.POST);
             var response = restClient.Execute(request);
@@ -299,9 +299,9 @@ namespace SlackAPI
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("channel", channel);
             dict.Add("cursor", cursor);
-            dict.Add("inclusive", inclusive.ToString());
+            dict.Add("inclusive", inclusive.ToString().ToLower());
             dict.Add("latest", latest);
-            dict.Add("limit", limit.ToString());
+            dict.Add("limit", limit.ToString().ToLower());
             dict.Add("oldest", oldest);
             var request = QuerryBuilder(dict, "conversations.history", Method.GET);
             var response = restClient.Execute(request);
@@ -319,7 +319,7 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("channel", channel);
-            dict.Add("include_locale", include_locale.ToString());
+            dict.Add("include_locale", include_locale.ToString().ToLower());
             var request = QuerryBuilder(dict, "conversations.info", Method.GET);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Conversations.Info.RootObject>(response.Content);
@@ -403,7 +403,7 @@ namespace SlackAPI
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("channel", channel);
             dict.Add("cursor", cursor);
-            dict.Add("limit", limit.ToString());
+            dict.Add("limit", limit.ToString().ToLower());
             var request = QuerryBuilder(dict, "conversations.members", Method.GET);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Conversations.Members.RootObject>(response.Content);
@@ -420,7 +420,7 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("channel", channel);
-            dict.Add("return_im", return_im.ToString());
+            dict.Add("return_im", return_im.ToString().ToLower());
             dict.Add("users", Extension.BuildString(users));
             var request = QuerryBuilder(dict, "conversations.open", Method.POST);
             var response = restClient.Execute(request);
@@ -457,9 +457,9 @@ namespace SlackAPI
             dict.Add("channel", channel);
             dict.Add("ts", ts);
             dict.Add("cursor", cursor);
-            dict.Add("inclusive", inclusive.ToString());
+            dict.Add("inclusive", inclusive.ToString().ToLower());
             dict.Add("latest", latest);
-            dict.Add("limit", limit.ToString());
+            dict.Add("limit", limit.ToString().ToLower());
             dict.Add("oldest", oldest);
             var request = QuerryBuilder(dict, "conversations.replies", Method.GET);
             var response = restClient.Execute(request);
@@ -530,7 +530,7 @@ namespace SlackAPI
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("channel", channel);
             dict.Add("ts", ts.ToProperTimeStamp());
-            dict.Add("as_user", as_user.ToString());
+            dict.Add("as_user", as_user.ToString().ToLower());
             var request = QuerryBuilder(dict, "chat.delete", Method.GET);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Chat.ChatInfo>(response.Content);
@@ -583,9 +583,9 @@ namespace SlackAPI
             dict.Add("channel", channel);
             dict.Add("text", text);
             dict.Add("user", user);
-            dict.Add("as_user", as_user.ToString());
+            dict.Add("as_user", as_user.ToString().ToLower());
             dict.Add("attachments", attachments);
-            dict.Add("link_names", link_names.ToString());
+            dict.Add("link_names", link_names.ToString().ToLower());
             dict.Add("parse", parse);
             var request = QuerryBuilder(dict, "chat.postEphemeral", Method.POST);
             var response = restClient.Execute(request);
@@ -607,17 +607,17 @@ namespace SlackAPI
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("channel", channel);
             dict.Add("text", text);
-            dict.Add("as_user", as_user.ToString());
+            dict.Add("as_user", as_user.ToString().ToLower());
             dict.Add("attachments", attachments);
             dict.Add("icon_emoji", icon_emoji);
             dict.Add("icon_url", icon_url);
-            dict.Add("link_names", link_names.ToString());
-            dict.Add("mrkdwn", mrkdwn.ToString());
+            dict.Add("link_names", link_names.ToString().ToLower());
+            dict.Add("mrkdwn", mrkdwn.ToString().ToLower());
             dict.Add("parse", parse);
-            dict.Add("reply_broadcast", reply_broadcast.ToString());
+            dict.Add("reply_broadcast", reply_broadcast.ToString().ToLower());
             dict.Add("thread_ts", thread_ts);
-            dict.Add("unfurl_links", unfurl_links.ToString());
-            dict.Add("unfurl_media", unfurl_media.ToString());
+            dict.Add("unfurl_links", unfurl_links.ToString().ToLower());
+            dict.Add("unfurl_media", unfurl_media.ToString().ToLower());
             dict.Add("username", username);
             var request = QuerryBuilder(dict, "chat.postMessage", Method.POST);
             var response = restClient.Execute(request);
@@ -637,7 +637,7 @@ namespace SlackAPI
             dict.Add("channel", channel);
             dict.Add("text", text);
             dict.Add("ts", ts.ToProperTimeStamp());
-            dict.Add("as_user", as_user.ToString());
+            dict.Add("as_user", as_user.ToString().ToLower());
             dict.Add("attachments", attachments);
             dict.Add("link_names", link_names);
             dict.Add("parse", parse);
@@ -704,7 +704,7 @@ namespace SlackAPI
         public DoNotDisturb.Info.DndInfo SetSnooze(int num_minutes)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
-            dict.Add("num_minutes", num_minutes.ToString());
+            dict.Add("num_minutes", num_minutes.ToString().ToLower());
             var request = QuerryBuilder(dict, "dnd.setSnooze", Method.GET);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<DoNotDisturb.Info.DndInfo>(response.Content);
@@ -791,8 +791,8 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("file", file);
-            dict.Add("count", count.ToString());
-            dict.Add("page", page.ToString());
+            dict.Add("count", count.ToString().ToLower());
+            dict.Add("page", page.ToString().ToLower());
             var request = QuerryBuilder(dict, "files.info", Method.GET);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<FileResult>(response.Content);
@@ -826,8 +826,8 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("channel", channel);
-            dict.Add("count", count.ToString());
-            dict.Add("page", page.ToString());
+            dict.Add("count", count.ToString().ToLower());
+            dict.Add("page", page.ToString().ToLower());
             dict.Add("ts_from", ts_from);
             dict.Add("ts_to", ts_to);
             dict.Add("types", types);
@@ -1001,9 +1001,9 @@ namespace SlackAPI
         public List<Reactions.List.Item> ListReactions(int count = 100, bool full = true, int page = 1, string user = null)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
-            dict.Add("count", count.ToString());
-            dict.Add("full", full.ToString());
-            dict.Add("page", page.ToString());
+            dict.Add("count", count.ToString().ToLower());
+            dict.Add("full", full.ToString().ToLower());
+            dict.Add("page", page.ToString().ToLower());
             dict.Add("user", user);
             var request = QuerryBuilder(dict, "reactions.list", Method.GET);
             var response = restClient.Execute(request);
@@ -1130,9 +1130,9 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("query", query);
-            dict.Add("count", count.ToString());
-            dict.Add("highlight", highlight.ToString());
-            dict.Add("page", page.ToString());
+            dict.Add("count", count.ToString().ToLower());
+            dict.Add("highlight", highlight.ToString().ToLower());
+            dict.Add("page", page.ToString().ToLower());
             dict.Add("sort", sort);
             dict.Add("sort_dir", sort_dir);
             var request = QuerryBuilder(dict, "search.all", Method.GET);
@@ -1152,9 +1152,9 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("query", query);
-            dict.Add("count", count.ToString());
-            dict.Add("highlight", highlight.ToString());
-            dict.Add("page", page.ToString());
+            dict.Add("count", count.ToString().ToLower());
+            dict.Add("highlight", highlight.ToString().ToLower());
+            dict.Add("page", page.ToString().ToLower());
             dict.Add("sort", sort);
             dict.Add("sort_dir", sort_dir);
             var request = QuerryBuilder(dict, "search.all", Method.GET);
@@ -1210,7 +1210,7 @@ namespace SlackAPI
             dict.Add("channels", channels);
             dict.Add("description", description);
             dict.Add("handle", handle);
-            dict.Add("include_count", include_count.ToString());
+            dict.Add("include_count", include_count.ToString().ToLower());
             var request = QuerryBuilder(dict, "usergroups.create", Method.POST);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Usergroups.Info.RootObject>(response.Content);
@@ -1227,7 +1227,7 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("usergroup", usergroup);
-            dict.Add("include_count", include_count.ToString());
+            dict.Add("include_count", include_count.ToString().ToLower());
             var request = QuerryBuilder(dict, "usergroups.disable", Method.POST);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Usergroups.Info.RootObject>(response.Content);
@@ -1244,7 +1244,7 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("usergroup", usergroup);
-            dict.Add("include_count", include_count.ToString());
+            dict.Add("include_count", include_count.ToString().ToLower());
             var request = QuerryBuilder(dict, "usergroups.disable", Method.POST);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Usergroups.Info.RootObject>(response.Content);
@@ -1260,9 +1260,9 @@ namespace SlackAPI
         public List<Usergroup> ListUsergroups(bool include_count = true, bool include_disable = true, bool include_users = true)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
-            dict.Add("include_count", include_count.ToString());
-            dict.Add("include_disable", include_disable.ToString());
-            dict.Add("include_users", include_users.ToString());
+            dict.Add("include_count", include_count.ToString().ToLower());
+            dict.Add("include_disable", include_disable.ToString().ToLower());
+            dict.Add("include_users", include_users.ToString().ToLower());
             var request = QuerryBuilder(dict, "usergroups.disable", Method.GET);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Usergroups.List.RootObject>(response.Content);
@@ -1282,7 +1282,7 @@ namespace SlackAPI
             dict.Add("channels", channels);
             dict.Add("description", description);
             dict.Add("handle", handle);
-            dict.Add("include_count", include_count.ToString());
+            dict.Add("include_count", include_count.ToString().ToLower());
             dict.Add("name", name);
             var request = QuerryBuilder(dict, "usergroups.update", Method.POST);
             var response = restClient.Execute(request);
@@ -1300,7 +1300,7 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("usergroup", usergroup);
-            dict.Add("include_disabled", include_disabled.ToString());
+            dict.Add("include_disabled", include_disabled.ToString().ToLower());
             var request = QuerryBuilder(dict, "usergroups.create", Method.GET);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Usergroups.Users.List.RootObject>(response.Content);
@@ -1318,7 +1318,7 @@ namespace SlackAPI
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("usergroup", usergroup);
             dict.Add("users", Extension.BuildString(users));
-            dict.Add("include_disabled", include_disabled.ToString());
+            dict.Add("include_disabled", include_disabled.ToString().ToLower());
             var request = QuerryBuilder(dict, "usergroups.create", Method.POST);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Usergroups.Info.RootObject>(response.Content);
@@ -1337,9 +1337,9 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("cursor", cursor);
-            dict.Add("include_locale", include_locale.ToString());
-            dict.Add("limit", limit.ToString());
-            dict.Add("presence", presence.ToString());
+            dict.Add("include_locale", include_locale.ToString().ToLower());
+            dict.Add("limit", limit.ToString().ToLower());
+            dict.Add("presence", presence.ToString().ToLower());
             var request = QuerryBuilder(dict, "users.list", Method.GET);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Users.List.RootObject>(response.Content);
@@ -1402,7 +1402,7 @@ namespace SlackAPI
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             dict.Add("user", user);
-            dict.Add("include_locale", include_locale.ToString());
+            dict.Add("include_locale", include_locale.ToString().ToLower());
             var request = QuerryBuilder(dict, "users.info", Method.GET);
             var response = restClient.Execute(request);
             var content = JsonConvert.DeserializeObject<Users.Info.RootObject>(response.Content);
@@ -1465,7 +1465,7 @@ namespace SlackAPI
         public Dictionary<string, string> GetProfile(bool include_labels = true, string user = null)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
-            dict.Add("include_labels", include_labels.ToString());
+            dict.Add("include_labels", include_labels.ToString().ToLower());
             dict.Add("user", user);
             var request = QuerryBuilder(dict, "users.profile.get", Method.GET);
             var response = restClient.Execute(request);
@@ -1497,6 +1497,26 @@ namespace SlackAPI
             }
             return content.Profile;
         }
+        #endregion
+
+        #region RTM Group
+        public string ConnectRTM(bool batch_presence_aware = false, bool presence_sub = true)
+        {
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            dict.Add("batch_presence_aware", batch_presence_aware.ToString().ToLower().ToLower());
+            dict.Add("presence_sub", presence_sub.ToString().ToLower().ToLower());
+            var request = QuerryBuilder(dict, "rtm.connect", Method.GET);
+            var response = restClient.Execute(request);
+            var content = JsonConvert.DeserializeObject<RTM.RTM>(response.Content);
+            BaseError contentError;
+            if (content.Ok == false)
+            {
+                contentError = JsonConvert.DeserializeObject<BaseError>(response.Content);
+                ErrorHandler(contentError.Error);
+            }
+            return content.Url;
+        }
+
         #endregion
     }
 }

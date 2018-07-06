@@ -1,9 +1,11 @@
 ﻿using SlackAPI;
 using SlackAPI.Conversations;
+using SlackAPI.RTM_API;
 using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Configuration;
+using SlackAPI.Users;
 
 namespace SlackAPI.Test
 {
@@ -12,15 +14,17 @@ namespace SlackAPI.Test
         static void Main(string[] args)
         {
 
-            SlackClient slackClient = new SlackClient(ConfigurationManager.AppSettings["oAuthToken"]);
-            bool response = slackClient.Connect();
-            //List<SlackAPI.Conversations.Conversation> conversations = slackClient.ListAllConversations(null, false, 200, "public_channel");
+            SlackClient slackClient = new SlackClient(ConfigurationManager.AppSettings["oAuthTokenBot"]);
+            slackClient.Connect();
             try
             {
                 foreach (var item in slackClient.Channels)
                 {
-                    slackClient.PostMessage(item.Id + "aaa", "Bu bir test mesajıdır.");
+                    slackClient.JoinConversation(item.Id);
                 }
+                string response = slackClient.ConnectRTM();
+                var rtmClient = new RTMBot(response);
+                rtmClient.Connect();
             }
             catch (Exception ex)
             {
