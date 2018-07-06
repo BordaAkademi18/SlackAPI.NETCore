@@ -1,16 +1,19 @@
 ﻿using SlackAPI;
 using SlackAPI.Conversations;
 using System;
+using System.IO;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Configuration;
 
-namespace SlackAPITest
+namespace SlackAPI.Test
 {
     class Program
     {
         static void Main(string[] args)
         {
-            SlackClient slackClient = new SlackClient("xoxp-388762451264-389601569877-393925859986-12a24b026d6975c2057db67bac12c204");
-            //SlackClient slackClient = new SlackClient("xoxp-388762451264-389601569877-392773317235-d1c7d375ab8f2444b0e98a5de6670b67");
+
+            SlackClient slackClient = new SlackClient(ConfigurationManager.AppSettings["oAuthToken"]);
             bool response = slackClient.Connect();
             //List<SlackAPI.Conversations.Conversation> conversations = slackClient.ListAllConversations(null, false, 200, "public_channel");
             string id = null;
