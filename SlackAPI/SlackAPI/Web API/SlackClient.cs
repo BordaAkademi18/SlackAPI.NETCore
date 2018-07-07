@@ -84,7 +84,7 @@ namespace SlackAPI
 
             Channels = ListAllConversations(null, false, 1000, "public_channel");
             Groups = ListAllConversations(null, false, 1000, "private_channel");
-            Groups = ListAllConversations(null, false, 1000, "mpim,im");
+            DirectMessages = ListAllConversations(null, false, 1000, "mpim,im");
             Users = ListUsers(null, false, 1000, false);
             MyTeam = TeamInfo();
             return content.Ok;
@@ -222,6 +222,23 @@ namespace SlackAPI
                     break;
             }
         }
+
+        #region Auth Group
+        public string TestAuthorization()
+        {
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            var request = QuerryBuilder(dict, "auth.test", Method.POST);
+            var response = restClient.Execute(request);
+            var content = JsonConvert.DeserializeObject<Web_API.Auth.RootObject>(response.Content);
+            BaseError contentError;
+            if (content.Ok == false)
+            {
+                contentError = JsonConvert.DeserializeObject<BaseError>(response.Content);
+                ErrorHandler(contentError.Error);
+            }
+            return content.UserId;
+        }
+        #endregion
 
         #region Conversation Group
 

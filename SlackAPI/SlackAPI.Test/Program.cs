@@ -18,12 +18,9 @@ namespace SlackAPI.Test
             slackClient.Connect();
             try
             {
-                foreach (var item in slackClient.Channels)
-                {
-                    slackClient.JoinConversation(item.Id);
-                }
+                string userId = slackClient.Users.Find(item => item.RealName.Contains("Orhan")).Id;
                 string response = slackClient.ConnectRTM();
-                var rtmClient = new RTMBot(response);
+                var rtmClient = new RTMBot(response, slackClient);
                 rtmClient.Connect();
             }
             catch (Exception ex)

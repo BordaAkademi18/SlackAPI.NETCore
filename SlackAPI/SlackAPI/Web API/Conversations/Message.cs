@@ -61,6 +61,9 @@ namespace SlackAPI.Conversations
         [JsonProperty("username")]
         public string Username { get; set; }
 
+        [JsonProperty("channel")]
+        public string Channel { get; set; }
+
         [JsonProperty("next")]
         public Message Next { get; set; }
 
