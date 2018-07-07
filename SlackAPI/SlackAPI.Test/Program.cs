@@ -6,6 +6,8 @@ using System.IO;
 using System.Collections.Generic;
 using System.Configuration;
 using SlackAPI.Users;
+using WebSocketSharp;
+using SlackAPI.RTM_API.Middleware_Architecture;
 
 namespace SlackAPI.Test
 {
@@ -20,7 +22,8 @@ namespace SlackAPI.Test
             {
                 string userId = slackClient.Users.Find(item => item.RealName.Contains("Orhan")).Id;
                 string response = slackClient.ConnectRTM();
-                var rtmClient = new RTMBot(response, slackClient);
+                Pipeline pipeline = new Pipeline();
+                var rtmClient = new RTMBot(new WebSocket(response), slackClient, pipeline);
                 rtmClient.Connect();
             }
             catch (Exception ex)

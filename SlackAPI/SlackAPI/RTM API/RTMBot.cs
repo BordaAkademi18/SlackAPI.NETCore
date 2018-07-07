@@ -6,29 +6,35 @@ using WebSocketSharp;
 using Newtonsoft.Json.Linq;
 using SlackAPI.Conversations;
 using SlackAPI.RTM_API.Models;
+using System.Text.RegularExpressions;
+using SlackAPI.RTM_API.Middleware_Architecture;
 
 namespace SlackAPI.RTM_API
 {
     public class RTMBot
     {
-        public string _connectionUrl { get; private set; }
-
-        public int _counter { get; private set; }
 
         private WebSocket _ws;
 
         private readonly SlackClient _slackClient;
 
-        public RTMBot(string connectionString, SlackClient slackClient)
+        private readonly Pipeline _pipeline;
+
+        public string _botId { get; private set; }
+
+        public string _botName { get; private set; }
+
+        public RTMBot(WebSocket ws, SlackClient slackClient, Pipeline pipeline)
         {
-            _connectionUrl = connectionString;
-            _counter = 1;
             _slackClient = slackClient;
+            _ws = ws; // in case of overriding user specific event handlers
+            _pipeline = pipeline;
         }
 
         public void Connect()
         {
-            _ws = new WebSocket(_connectionUrl);
+            _botId = _slackClient.TestAuthorization();
+            _botName = _slackClient.Users.Find(item => item.Id == _botId).RealName;
             Stats stats = null;
             _ws.OnMessage += (sender, e) =>
             {          //This method should be reconfigured for use (Console Applications, ASP.NET Web API etc.)
@@ -38,49 +44,38 @@ namespace SlackAPI.RTM_API
                         Message message = JsonConvert.DeserializeObject<Message>(e.Data);
                         if (message.Text == null)
                             break;
-                        if (message.Subtype != "bot_message" && message.Text.Contains("<@" + _slackClient.TestAuthorization() + ">"))
+                        if (message.Subtype != "bot_message" && message.Text.Contains("<@" + _botId + ">"))
                         {
                             string userName = _slackClient.Users.Find(item => item.Id == message.User).Name;
                             stats.MessageReceived();
-                            if (message.Text.Contains("stats"))
-                            {
-                                stats.MessageDelivered();
-                                Dictionary<string, string> statsLocal = stats.ShowStats();
-                                Models.Attachment attachment = new Models.Attachment
-                                {
-                                    Color = "#D8D8D8"
-                                };
-                                foreach (var item in statsLocal)
-                                    attachment.Text += item.Key + item.Value + "\n";
-                                attachment.Text = attachment.Text.Substring(0, attachment.Text.Length);
-                                attachment.Footer = "BordaBot";
-                                attachment.Ts = Extension.ToProperTimeStamp(DateTime.Now);
-                                string attachments = "[" + JsonConvert.SerializeObject(attachment) + "]";
-                                _slackClient.PostMessage(message.Channel, "@" + userName + ", here are the stats:", false, attachments);
-                            }
-                            if (message.Text.Contains("help"))
-                            {
-                                Models.Attachment attachment = new Models.Attachment
-                                {
-                                    Color = "danger",
-                                    Text = "`stats`: To see statistics related to BordaBot \n `help`: To show all commands",
-                                    Footer = "BordaBot",
-                                    Ts = Extension.ToProperTimeStamp(DateTime.Now)
-                                };
-                                string attachments = "[" + JsonConvert.SerializeObject(attachment) + "]";
-                                _slackClient.PostMessage(message.Channel, "@" + userName + ", here are the commands available:", false, attachments);
-                            }
+                            Match m = Regex.Match(message.Text, @"^<@" + _botId + @">\s[a-zA-Z\s]*");
+                            List<string> parameters = new List<string>(m.Value.Split(' '));
+                            Dictionary<string, object> objectParameters = new Dictionary<string, object>();
+                            objectParameters.Add("stats", stats);
+                            objectParameters.Add("_botName", _botName);
+                            objectParameters.Add("_botId", _botId);
+                            objectParameters.Add("userName", userName);
+                            objectParameters.Add("parameters", parameters);
+                            objectParameters.Add("message", message);
+                            objectParameters.Add("_ws", _ws);
+                            objectParameters.Add("_slackClient", _slackClient);
+
+                            _pipeline.Run(objectParameters);
                         }
                         break;
                     default:
-                        stats.EventReceived();
                         break;
                 }
             };
             _ws.OnOpen += (sender, e) =>
             {
                 stats = new Stats();
-                Console.WriteLine("Client is started");
+                Console.WriteLine("Client is started.");
+            };
+            _ws.OnClose += (sender, e) =>
+            {
+                Console.WriteLine("Client is closed.");
+                //Should consider saving logs to database in future.
             };
             _ws.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
             _ws.Connect();
@@ -96,8 +91,6 @@ namespace SlackAPI.RTM_API
     {
         public DateTime _TimeOfConnection { get; private set; }
 
-        public int NumberOfEventsCaught { get; private set; }
-
         public int NumberOfMessagesCaught { get; private set; }
 
         public int NumberOfMessagesDelivered { get; private set; }
@@ -105,7 +98,6 @@ namespace SlackAPI.RTM_API
         public Stats()
         {
             _TimeOfConnection = DateTime.Now;
-            NumberOfEventsCaught = 0;
             NumberOfMessagesCaught = 0;
             NumberOfMessagesDelivered = 0;
         }
@@ -114,7 +106,6 @@ namespace SlackAPI.RTM_API
         {
             Dictionary<string, string> returnVal = new Dictionary<string, string>();
             returnVal.Add("connected since: ", _TimeOfConnection.ToShortDateString() + " " + _TimeOfConnection.ToLongTimeString());
-            returnVal.Add("number of events caught: ", NumberOfEventsCaught.ToString());
             returnVal.Add("number of messages caught: ", NumberOfMessagesCaught.ToString());
             returnVal.Add("number of messages delivered: ", NumberOfMessagesDelivered.ToString());
             return returnVal;
@@ -123,12 +114,6 @@ namespace SlackAPI.RTM_API
         public void MessageReceived()
         {
             NumberOfMessagesCaught++;
-            NumberOfEventsCaught++;
-        }
-
-        public void EventReceived()
-        {
-            NumberOfEventsCaught++;
         }
 
         public void MessageDelivered()
