@@ -1,19 +1,28 @@
 ﻿using Newtonsoft.Json;
+using RestSharp;
 using SlackAPI.Conversations;
+using SlackAPI.RTM_API.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using WebSocketSharp;
 
 namespace SlackAPI.RTM_API.Middleware_Architecture
 {
-    public class DisconnectBotMiddleware : IMiddleware
+    public class QuoteMiddleware : IMiddleware
     {
         public bool IsComplete { get; private set; }
 
         public string Description { get; private set; }
 
         public string Command { get; private set; }
+
+        public string HelpString { get; private set; }
+
+        public QuoteMiddleware()
+        {
+            Command = "quote";
+            Description = "To show a random quote";
+        }
 
         public void Process(Dictionary<string, object> parameters)
         {
@@ -23,8 +32,6 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
             Stats stats = null;
             SlackClient slackClient = null;
             string userName = null;
-            string botName = null;
-            WebSocket webSocket = null;
             foreach (var item in parameters)
             {
                 switch (item.Key)
@@ -33,9 +40,7 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
                     case "userName": userName = (string)item.Value; break;
                     case "message": message = (Message)item.Value; break;
                     case "parameters": botParameters = (List<string>)item.Value; break;
-                    case "_botName": botName = (string)item.Value; break;
                     case "_slackClient": slackClient = (SlackClient)item.Value; break;
-                    case "_ws": webSocket = (WebSocket)item.Value; break;
                     default:
                         break;
                 }
@@ -45,19 +50,22 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
                 Footer = "BordaBot",
                 Ts = Extension.ToProperTimeStamp(DateTime.Now)
             };
-            if (botParameters.Count == 3 && botParameters[1] == "disconnect" && botParameters[2] == "bot")
+
+            if (botParameters.Count == 2 && botParameters[1] == "quote")
             {
-                stats.MessageReceived();
-                attachment.Color = "danger";
-                attachment.Text = botName + " is shutting down.";
+                stats.MessageDelivered();
+
+                RestClient restClient = new RestClient("https://random-quote-generator.herokuapp.com/api/quotes");
+                RestRequest restRequest = new RestRequest("random", Method.GET);
+                var response = JsonConvert.DeserializeObject<RandomQuote>(restClient.Execute(restRequest).Content);
+
+                attachment.Color = "#ECF22A";
+                attachment.AuthorName = response.Author;
+                attachment.Text = "*" + response.Quote + "*";
                 string attachments = "[" + JsonConvert.SerializeObject(attachment) + "]";
 
-                slackClient.PostMessage(message.Channel, "@" + userName + ":", false, attachments);
-                webSocket.Close();
-                IsComplete = true;
+                slackClient.PostMessage(message.Channel, "@" + userName + ", here is the random quote of the day:", false, attachments);
             }
-            Command = "disconnect bot";
-            Description = "To make " + botName + " disconnect from this wokspace";
         }
     }
 }

@@ -31,7 +31,7 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
                 int i = 0;
                 foreach (var item in _pipelineElemets)
                 {
-                    if (i == _pipelineElemets.Count - 1)
+                    if (i == _pipelineElemets.Count - 1 && helpMiddleware.HelpString == "")
                         helpMiddleware.HelpBuilder(this);
                     item.Process(parameters);
                     if (item.IsComplete == true)

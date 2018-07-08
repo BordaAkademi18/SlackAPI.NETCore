@@ -23,6 +23,9 @@ namespace SlackAPI.Test
                 string userId = slackClient.Users.Find(item => item.RealName.Contains("Orhan")).Id;
                 string response = slackClient.ConnectRTM();
                 Pipeline pipeline = new Pipeline();
+                pipeline.Add(new WeatherMiddleware());
+                pipeline.Add(new QuoteMiddleware());
+
                 var rtmClient = new RTMBot(new WebSocket(response), slackClient, pipeline);
                 rtmClient.Connect();
             }

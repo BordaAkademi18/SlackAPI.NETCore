@@ -46,7 +46,7 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
                 Ts = Extension.ToProperTimeStamp(DateTime.Now)
             };
 
-            if (botParameters[1] == "stats")
+            if (botParameters.Count == 2 && botParameters[1] == "stats")
             {
                 stats.MessageDelivered();
 

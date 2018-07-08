@@ -2,6 +2,7 @@
 using SlackAPI.Conversations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SlackAPI.RTM_API.Middleware_Architecture
@@ -14,10 +15,11 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
 
         public string Command { get; private set; }
 
-        private string helpString = "";
+        public string HelpString { get; private set; }
 
         public HelpMiddleware()
         {
+            HelpString = "";
             Command = "help";
             Description = "To show all commands";
         }
@@ -30,7 +32,6 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
             Stats stats = null;
             SlackClient slackClient = null;
             string userName = null;
-            string botName = null;
             foreach (var item in parameters)
             {
                 switch (item.Key)
@@ -39,7 +40,6 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
                     case "userName": userName = (string)item.Value; break;
                     case "message": message = (Message)item.Value; break;
                     case "parameters": botParameters = (List<string>)item.Value; break;
-                    case "_botName": botName = (string)item.Value; break;
                     case "_slackClient": slackClient = (SlackClient)item.Value; break;
                     default:
                         break;
@@ -51,12 +51,12 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
                 Ts = Extension.ToProperTimeStamp(DateTime.Now)
             };
 
-            if (botParameters[1] == "help")
+            if (botParameters.Count == 2 && botParameters[1] == "help")
             {
                 stats.MessageDelivered();
 
                 attachment.Color = "danger";
-                attachment.Text = helpString;
+                attachment.Text = HelpString;
                 string attachments = "[" + JsonConvert.SerializeObject(attachment) + "]";
 
                 slackClient.PostMessage(message.Channel, "@" + userName + ", here are the commands available:", false, attachments);
@@ -66,12 +66,14 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
 
         public void HelpBuilder(Pipeline pipeline)
         {
-            foreach (var item in pipeline._pipelineElemets)
+            List<IMiddleware> middlewares = new List<IMiddleware>(pipeline._pipelineElemets);
+            middlewares = middlewares.OrderBy(o => o.Command).ToList();
+            foreach (var item in middlewares)
             {
-                helpString += "`" + item.Command + "`: " + item.Description + " \n";
+                HelpString += "`" + item.Command + "`: " + item.Description + " \n";
             }
 
-            helpString = helpString.Substring(0, helpString.Length - 3);
+            HelpString = HelpString.Substring(0, HelpString.Length - 2);
         }
     }
 }

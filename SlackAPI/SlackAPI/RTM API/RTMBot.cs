@@ -49,6 +49,8 @@ namespace SlackAPI.RTM_API
                             string userName = _slackClient.Users.Find(item => item.Id == message.User).Name;
                             stats.MessageReceived();
                             Match m = Regex.Match(message.Text, @"^<@" + _botId + @">\s[a-zA-Z\s]*");
+                            if (m.Captures.Count == 0)
+                                throw new InvalidOperationException("Wrong parameter type entered.");
                             List<string> parameters = new List<string>(m.Value.Split(' '));
                             Dictionary<string, object> objectParameters = new Dictionary<string, object>();
                             objectParameters.Add("stats", stats);
@@ -59,7 +61,6 @@ namespace SlackAPI.RTM_API
                             objectParameters.Add("message", message);
                             objectParameters.Add("_ws", _ws);
                             objectParameters.Add("_slackClient", _slackClient);
-
                             _pipeline.Run(objectParameters);
                         }
                         break;
