@@ -33,7 +33,7 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
             Stats stats = null;
             SlackClient slackClient = null;
             string userName = null;
-            string botName = null;
+
             foreach (var item in parameters)
             {
                 switch (item.Key)
@@ -42,7 +42,6 @@ namespace SlackAPI.RTM_API.Middleware_Architecture
                     case "userName": userName = (string)item.Value; break;
                     case "message": message = (Message)item.Value; break;
                     case "parameters": botParameters = (List<string>)item.Value; break;
-                    case "_botName": botName = (string)item.Value; break;
                     case "_slackClient": slackClient = (SlackClient)item.Value; break;
                     default:
                         break;

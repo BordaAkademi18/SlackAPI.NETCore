@@ -8,6 +8,7 @@ using System.Configuration;
 using SlackAPI.Users;
 using WebSocketSharp;
 using SlackAPI.RTM_API.Middleware_Architecture;
+using System.Timers;
 
 namespace SlackAPI.Test
 {
@@ -25,8 +26,12 @@ namespace SlackAPI.Test
                 Pipeline pipeline = new Pipeline();
                 pipeline.Add(new WeatherMiddleware());
                 pipeline.Add(new QuoteMiddleware());
+                pipeline.Add(new StayHydratedMiddleware());
 
-                var rtmClient = new RTMBot(new WebSocket(response), slackClient, pipeline);
+                TimerPipeline timerPipeline = new TimerPipeline();
+                timerPipeline.Add(new StayHydratedTimerMiddleware());
+
+                var rtmClient = new RTMBot(new WebSocket(response), slackClient, pipeline, timerPipeline, 8);
                 rtmClient.Connect();
             }
             catch (Exception ex)
